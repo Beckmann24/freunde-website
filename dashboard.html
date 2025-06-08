@@ -2,15 +2,229 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Dashboard - Freunde-Website</title>
+  <style>
+    /* Reset und Grund */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    }
+
+    body {
+      background: #fafafa;
+      color: #262626;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      height: 60px;
+      border-bottom: 1px solid #dbdbdb;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header .logo {
+      font-family: 'Grand Hotel', cursive;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #262626;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    header .search {
+      flex: 1;
+      max-width: 300px;
+      margin: 0 20px;
+    }
+
+    header .search input {
+      width: 100%;
+      padding: 7px 12px;
+      border: 1px solid #dbdbdb;
+      border-radius: 3px;
+      background: #fafafa;
+      font-size: 14px;
+      color: #262626;
+    }
+
+    header .logout-btn {
+      background: transparent;
+      border: none;
+      color: #3897f0;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+
+    header .logout-btn:hover {
+      background: #e6f0ff;
+    }
+
+    /* Main Layout */
+    main {
+      flex: 1;
+      display: flex;
+      max-width: 1000px;
+      margin: 20px auto;
+      gap: 20px;
+      padding: 0 10px;
+    }
+
+    /* Sidebar links */
+    nav.sidebar-left {
+      flex: 0 0 200px;
+      background: white;
+      border: 1px solid #dbdbdb;
+      border-radius: 8px;
+      padding: 20px;
+      height: fit-content;
+      position: sticky;
+      top: 80px;
+    }
+
+    nav.sidebar-left ul {
+      list-style: none;
+    }
+
+    nav.sidebar-left li {
+      margin-bottom: 15px;
+    }
+
+    nav.sidebar-left a {
+      text-decoration: none;
+      color: #262626;
+      font-weight: 600;
+      font-size: 15px;
+      display: block;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    nav.sidebar-left a:hover {
+      background-color: #fafafa;
+    }
+
+    /* Feed Bereich */
+    section.feed {
+      flex: 1 1 500px;
+      background: white;
+      border: 1px solid #dbdbdb;
+      border-radius: 8px;
+      padding: 20px;
+      min-height: 400px;
+    }
+
+    section.feed h2 {
+      margin-bottom: 15px;
+      font-weight: 700;
+      font-size: 18px;
+      border-bottom: 1px solid #dbdbdb;
+      padding-bottom: 10px;
+    }
+
+    /* Sidebar rechts */
+    aside.sidebar-right {
+      flex: 0 0 250px;
+      background: white;
+      border: 1px solid #dbdbdb;
+      border-radius: 8px;
+      padding: 20px;
+      height: fit-content;
+      position: sticky;
+      top: 80px;
+      font-size: 14px;
+      color: #999;
+    }
+
+    aside.sidebar-right h3 {
+      margin-bottom: 15px;
+      font-weight: 700;
+      font-size: 16px;
+      color: #262626;
+    }
+
+    aside.sidebar-right ul {
+      list-style: none;
+    }
+
+    aside.sidebar-right li {
+      margin-bottom: 10px;
+      cursor: pointer;
+      color: #3897f0;
+    }
+
+    aside.sidebar-right li:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      main {
+        flex-direction: column;
+        max-width: 100%;
+      }
+
+      nav.sidebar-left,
+      aside.sidebar-right {
+        flex: none;
+        width: 100%;
+        position: relative;
+        top: auto;
+        margin-bottom: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="auth-container">
-    <h1>Willkommen im Dashboard!</h1>
-    <p>Du bist jetzt angemeldet.</p>
-    <button id="logoutBtn">Abmelden</button>
-  </div>
+  <header>
+    <div class="logo" onclick="location.reload()">Freunde</div>
+    <div class="search">
+      <input type="text" placeholder="Suche" aria-label="Suche" />
+    </div>
+    <button class="logout-btn" id="logoutBtn">Abmelden</button>
+  </header>
+
+  <main>
+    <nav class="sidebar-left" aria-label="Navigation">
+      <ul>
+        <li><a href="#">Profil</a></li>
+        <li><a href="#">Freunde</a></li>
+        <li><a href="#">Nachrichten</a></li>
+        <li><a href="#">Einstellungen</a></li>
+      </ul>
+    </nav>
+
+    <section class="feed" aria-label="Feed">
+      <h2>Dein Feed</h2>
+      <p>Hier erscheinen bald Beiträge von deinen Freunden.</p>
+    </section>
+
+    <aside class="sidebar-right" aria-label="Freundesvorschläge">
+      <h3>Freundesvorschläge</h3>
+      <ul>
+        <li>Anna Müller</li>
+        <li>Max Mustermann</li>
+        <li>Julia Schmidt</li>
+      </ul>
+    </aside>
+  </main>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";

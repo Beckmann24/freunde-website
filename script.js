@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
 
-// Deine Firebase-Konfiguration
+// Firebase-Konfiguration
 const firebaseConfig = {
   apiKey: "AIzaSyDpkfY7jqQULUWfVu_2sVCVJ1TRatK3tnc",
   authDomain: "freunde-website.firebaseapp.com",
@@ -63,13 +63,12 @@ document.getElementById("loginBtn").onclick = async () => {
   }
 };
 
-// Google-Login
-document.getElementById("googleLoginBtn").onclick = async () => {
+// Google REGISTRIERUNG (mit Datenerfassung)
+document.getElementById("googleRegisterBtn").onclick = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
-    // Zusätzliche Daten abfragen (manuell)
     const vorname = prompt("Bitte gib deinen Vornamen ein:");
     const nachname = prompt("Bitte gib deinen Nachnamen ein:");
     const geburtstag = prompt("Bitte gib dein Geburtsdatum ein (JJJJ-MM-TT):");
@@ -88,6 +87,17 @@ document.getElementById("googleLoginBtn").onclick = async () => {
       createdAt: new Date().toISOString()
     });
 
+    alert("Google-Registrierung erfolgreich!");
+  } catch (error) {
+    console.error(error);
+    alert("Fehler bei der Google-Registrierung: " + error.message);
+  }
+};
+
+// Google ANMELDUNG (nur Login)
+document.getElementById("googleLoginBtn").onclick = async () => {
+  try {
+    await signInWithPopup(auth, provider);
     alert("Google-Login erfolgreich!");
   } catch (error) {
     console.error(error);

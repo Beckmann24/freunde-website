@@ -192,6 +192,8 @@
     }
   </style>
 </head>
+<!-- ... Header & Layout unverändert ... -->
+
 <body>
   <header>
     <div class="logo" onclick="location.reload()">Freunde</div>
@@ -204,7 +206,7 @@
   <main>
     <nav class="sidebar-left" aria-label="Navigation">
       <ul>
-        <li><a href="#">Profil</a></li>
+        <li><a href="#" id="openProfileBtn">Profil</a></li>
         <li><a href="#">Freunde</a></li>
         <li><a href="#">Nachrichten</a></li>
         <li><a href="#">Einstellungen</a></li>
@@ -226,9 +228,141 @@
     </aside>
   </main>
 
+  <!-- Profil Popup Modal -->
+  <div id="profileModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="profileModalTitle" aria-modal="true" tabindex="-1">
+    <div class="modal-content">
+      <button class="close-btn" id="closeProfileBtn" aria-label="Schließen">&times;</button>
+      <h2 id="profileModalTitle">Profil bearbeiten</h2>
+      <form id="profileForm">
+        <div class="profile-pic-wrapper">
+          <img id="profilePicPreview" src="https://via.placeholder.com/120" alt="Profilbild Vorschau" />
+          <input type="file" id="profilePicInput" accept="image/*" />
+        </div>
+
+        <label for="alias">Alias (Benutzername)</label>
+        <input type="text" id="alias" name="alias" placeholder="Dein Benutzername" />
+
+        <label for="vorname">Vorname</label>
+        <input type="text" id="vorname" name="vorname" />
+
+        <label for="nachname">Nachname</label>
+        <input type="text" id="nachname" name="nachname" />
+
+        <label for="geburtstag">Geburtstag</label>
+        <input type="date" id="geburtstag" name="geburtstag" />
+
+        <button type="submit">Speichern</button>
+      </form>
+    </div>
+  </div>
+
+  <style>
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .modal[aria-hidden="false"] {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 30px;
+      max-width: 400px;
+      width: 100%;
+      position: relative;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 28px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #999;
+      transition: color 0.2s ease;
+    }
+
+    .close-btn:hover {
+      color: #444;
+    }
+
+    form label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    form input[type="text"],
+    form input[type="date"],
+    form input[type="file"] {
+      width: 100%;
+      padding: 8px 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    form button[type="submit"] {
+      margin-top: 20px;
+      width: 100%;
+      background-color: #3897f0;
+      border: none;
+      padding: 10px;
+      color: white;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    form button[type="submit"]:hover {
+      background-color: #2f81d7;
+    }
+
+    .profile-pic-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    #profilePicPreview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ccc;
+      margin-bottom: 10px;
+      background: #eee;
+    }
+
+    #profilePicInput {
+      cursor: pointer;
+    }
+  </style>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDpkfY7jqQULUWfVu_2sVCVJ1TRatK3tnc",
@@ -236,21 +370,158 @@
       projectId: "freunde-website",
       storageBucket: "freunde-website.appspot.com",
       messagingSenderId: "843365542292",
-      appId: "1:843365542292:web:5377750aa88120c74b8781",
+      appId: "1:843365542292:web:5377750aa88120c74b8781"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
 
-    document.getElementById("logoutBtn").onclick = async () => {
-      try {
-        await signOut(auth);
-        alert("Abmeldung erfolgreich!");
-        window.location.href = "index.html";
-      } catch (error) {
-        alert("Fehler beim Abmelden: " + error.message);
+    const profileModal = document.getElementById("profileModal");
+    const openProfileBtn = document.getElementById("openProfileBtn");
+    const closeProfileBtn = document.getElementById("closeProfileBtn");
+    const profileForm = document.getElementById("profileForm");
+    const profilePicInput = document.getElementById("profilePicInput");
+    const profilePicPreview = document.getElementById("profilePicPreview");
+
+    let currentUser = null;
+    let currentProfilePicUrl = null;
+
+    // Öffne Modal beim Klick auf Profil
+    openProfileBtn.onclick = () => {
+      if (!currentUser) {
+        alert("Bitte melde dich erst an!");
+        return;
       }
+      loadUserProfile();
+      profileModal.setAttribute("aria-hidden", "false");
+    };
+
+    // Schließe Modal
+    closeProfileBtn.onclick = () => {
+      profileModal.setAttribute("aria-hidden", "true");
+    };
+
+    // Schließe Modal bei Klick außerhalb des Inhalts
+    profileModal.onclick = (e) => {
+      if (e.target === profileModal) {
+        profileModal.setAttribute("aria-hidden", "true");
+      }
+    };
+
+    // Vorschau aktualisieren bei Bild-Auswahl
+    profilePicInput.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Zeige direkt lokale Vorschau
+      const reader = new FileReader();
+      reader.onload = () => {
+        profilePicPreview.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // Lade Profil aus Firestore
+    async function loadUserProfile() {
+      try {
+        const docRef = doc(db, "users", currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+
+          document.getElementById("alias").value = data.alias || "";
+          document.getElementById("vorname").value = data.vorname || "";
+          document.getElementById("nachname").value = data.nachname || "";
+          document.getElementById("geburtstag").value = data.geburtstag || "";
+
+          if (data.profilePicUrl) {
+            profilePicPreview.src = data.profilePicUrl;
+            currentProfilePicUrl = data.profilePicUrl;
+          } else {
+            profilePicPreview.src = "https://via.placeholder.com/120";
+            currentProfilePicUrl = null;
+          }
+        } else {
+          // Neu - leere Felder
+          document.getElementById("alias").value = "";
+          document.getElementById("vorname").value = "";
+          document.getElementById("nachname").value = "";
+          document.getElementById("geburtstag").value = "";
+          profilePicPreview.src = "https://via.placeholder.com/120";
+          currentProfilePicUrl = null;
+        }
+      } catch (error) {
+        alert("Fehler beim Laden des Profils: " + error.message);
+      }
+    }
+
+    // Speichern des Profils
+    profileForm.onsubmit = async (e) => {
+      e.preventDefault();
+      if (!currentUser) {
+        alert("Nicht angemeldet!");
+        return;
+      }
+
+      const alias = document.getElementById("alias").value.trim();
+      const vorname = document.getElementById("vorname").value.trim();
+      const nachname = document.getElementById("nachname").value.trim();
+      const geburtstag = document.getElementById("geburtstag").value;
+
+      // Prüfen auf Mindestanforderungen
+      if (!alias) {
+        alert("Bitte gib einen Alias ein.");
+        return;
+      }
+
+      let profilePicUrlToSave = currentProfilePicUrl;
+
+      // Wenn neues Bild ausgewählt wurde, hochladen
+      const file = profilePicInput.files[0];
+      if (file) {
+        const storageRef = ref(storage, `profilePics/${currentUser.uid}`);
+        try {
+          await uploadBytes(storageRef, file);
+          profilePicUrlToSave = await getDownloadURL(storageRef);
+        } catch (error) {
+          alert("Fehler beim Hochladen des Profilbilds: " + error.message);
+          return;
+        }
+      }
+
+      try {
+        const docRef = doc(db, "users", currentUser.uid);
+        await setDoc(docRef, {
+          alias,
+          vorname,
+          nachname,
+          geburtstag,
+          profilePicUrl: profilePicUrlToSave || null,
+        }, { merge: true });
+
+        alert("Profil gespeichert!");
+        profileModal.setAttribute("aria-hidden", "true");
+      } catch (error) {
+        alert("Fehler beim Speichern: " + error.message);
+      }
+    };
+
+    // Überwache Auth-Status
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        // Eventuell schon Profil laden oder UI anpassen
+      } else {
+        currentUser = null;
+      }
+    });
+
+    // Logout
+    document.getElementById("logoutBtn").onclick = () => {
+      auth.signOut();
+      location.reload();
     };
   </script>
 </body>
-</html>

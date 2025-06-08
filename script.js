@@ -10,21 +10,19 @@ import {
 const auth = window.auth;
 const provider = new GoogleAuthProvider();
 
-// Sichtbarkeit steuern
 const authSection = document.getElementById("authSection");
 const mainContent = document.getElementById("mainContent");
 
-// Umschalten zwischen Anmelden und Registrieren
 document.getElementById("toggleToRegister").onclick = () => {
   document.getElementById("loginForm").style.display = "none";
   document.getElementById("registerForm").style.display = "block";
 };
+
 document.getElementById("toggleToLogin").onclick = () => {
   document.getElementById("registerForm").style.display = "none";
   document.getElementById("loginForm").style.display = "block";
 };
 
-// Registrierung
 document.getElementById("registerBtn").onclick = async () => {
   const email = document.getElementById("registerEmail").value;
   const password = document.getElementById("registerPassword").value;
@@ -36,7 +34,6 @@ document.getElementById("registerBtn").onclick = async () => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Zusatzdaten lokal speichern (z. B. in Firestore oder localStorage)
     localStorage.setItem("userData", JSON.stringify({ vorname, nachname, geburtstag }));
 
     alert("Registrierung erfolgreich!");
@@ -45,7 +42,6 @@ document.getElementById("registerBtn").onclick = async () => {
   }
 };
 
-// Login
 document.getElementById("loginBtn").onclick = async () => {
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPassword").value;
@@ -57,7 +53,6 @@ document.getElementById("loginBtn").onclick = async () => {
   }
 };
 
-// Google Login
 document.getElementById("googleLoginBtn").onclick = async () => {
   try {
     await signInWithPopup(auth, provider);
@@ -66,12 +61,10 @@ document.getElementById("googleLoginBtn").onclick = async () => {
   }
 };
 
-// Logout
 document.getElementById("logoutBtn").onclick = () => {
   signOut(auth);
 };
 
-// Nutzerstatus beobachten
 onAuthStateChanged(auth, (user) => {
   if (user) {
     authSection.style.display = "none";

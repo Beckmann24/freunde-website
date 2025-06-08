@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="auth-container">
+    <h1>Willkommen im Dashboard!</h1>
+    <p>Du bist jetzt angemeldet.</p>
+    <button id="logoutBtn">Abmelden</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpkfY7jqQULUWfVu_2sVCVJ1TRatK3tnc",
+      authDomain: "freunde-website.firebaseapp.com",
+      projectId: "freunde-website",
+      storageBucket: "freunde-website.appspot.com",
+      messagingSenderId: "843365542292",
+      appId: "1:843365542292:web:5377750aa88120c74b8781",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById("logoutBtn").onclick = async () => {
+      try {
+        await signOut(auth);
+        alert("Abmeldung erfolgreich!");
+        window.location.href = "index.html";
+      } catch (error) {
+        alert("Fehler beim Abmelden: " + error.message);
+      }
+    };
+  </script>
+</body>
+</html>

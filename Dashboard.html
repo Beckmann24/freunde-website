@@ -2,50 +2,19 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard - Freunde-Website</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #e0f7fa;
-      padding: 2rem;
-      max-width: 600px;
-      margin: auto;
-    }
-    h1 {
-      color: #00796b;
-    }
-    #userInfo {
-      background: white;
-      padding: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin-bottom: 1.5rem;
-    }
-    button {
-      padding: 0.7rem 1.2rem;
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    button:hover {
-      background-color: #004d40;
-    }
-  </style>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="auth-container">
+    <h1>Willkommen im Dashboard!</h1>
+    <p>Du bist jetzt angemeldet.</p>
+    <button id="logoutBtn">Abmelden</button>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import {
-      getFirestore,
-      doc,
-      getDoc
-    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDpkfY7jqQULUWfVu_2sVCVJ1TRatK3tnc",
@@ -53,61 +22,21 @@
       projectId: "freunde-website",
       storageBucket: "freunde-website.appspot.com",
       messagingSenderId: "843365542292",
-      appId: "1:843365542292:web:5377750aa88120c74b8781"
+      appId: "1:843365542292:web:5377750aa88120c74b8781",
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
 
-    const userInfoDiv = document.getElementById("userInfo");
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // Nutzer ist angemeldet
-        const uid = user.uid;
-
-        try {
-          const docRef = doc(db, "users", uid);
-          const docSnap = await getDoc(docRef);
-
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            userInfoDiv.innerHTML = `
-              <h2>Hallo, ${data.vorname} ${data.nachname}!</h2>
-              <p><strong>E-Mail:</strong> ${data.email}</p>
-              <p><strong>Geburtstag:</strong> ${data.geburtstag}</p>
-              <p><em>Registriert am: ${new Date(data.createdAt).toLocaleDateString()}</em></p>
-            `;
-          } else {
-            userInfoDiv.innerHTML = "<p>Benutzerdaten nicht gefunden.</p>";
-          }
-        } catch (error) {
-          userInfoDiv.innerHTML = `<p>Fehler beim Laden der Benutzerdaten: ${error.message}</p>`;
-        }
-      } else {
-        // Kein Nutzer angemeldet → zurück zur Login-Seite
-        window.location.href = "index.html";
-      }
-    });
-
-    logoutBtn.onclick = async () => {
+    document.getElementById("logoutBtn").onclick = async () => {
       try {
         await signOut(auth);
-        alert("Du wurdest ausgeloggt.");
+        alert("Abmeldung erfolgreich!");
         window.location.href = "index.html";
       } catch (error) {
-        alert("Fehler beim Logout: " + error.message);
+        alert("Fehler beim Abmelden: " + error.message);
       }
     };
   </script>
-</head>
-<body>
-  <h1>Dashboard</h1>
-  <div id="userInfo">
-    <p>Lade deine Daten...</p>
-  </div>
-  <button id="logoutBtn">Logout</button>
 </body>
 </html>

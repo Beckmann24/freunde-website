@@ -1,43 +1,83 @@
-const freunde = [];
-const besteFreunde = {};
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-document.getElementById('friendForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const vorname = document.getElementById('vorname').value;
-  const nachname = document.getElementById('nachname').value;
-  const geburtstag = document.getElementById('geburtstag').value;
-  const hobbys = document.getElementById('hobbys').value.split(',');
+const auth = window.auth;
+const provider = new GoogleAuthProvider();
 
-  freunde.push({ vorname, nachname, geburtstag, hobbys });
-  zeigeFreunde();
-  this.reset();
+// Sichtbarkeit steuern
+const authSection = document.getElementById("authSection");
+const mainContent = document.getElementById("mainContent");
+
+// Umschalten zwischen Anmelden und Registrieren
+document.getElementById("toggleToRegister").onclick = () => {
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("registerForm").style.display = "block";
+};
+document.getElementById("toggleToLogin").onclick = () => {
+  document.getElementById("registerForm").style.display = "none";
+  document.getElementById("loginForm").style.display = "block";
+};
+
+// Registrierung
+document.getElementById("registerBtn").onclick = async () => {
+  const email = document.getElementById("registerEmail").value;
+  const password = document.getElementById("registerPassword").value;
+  const vorname = document.getElementById("regVorname").value;
+  const nachname = document.getElementById("regNachname").value;
+  const geburtstag = document.getElementById("regGeburtstag").value;
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Zusatzdaten lokal speichern (z. B. in Firestore oder localStorage)
+    localStorage.setItem("userData", JSON.stringify({ vorname, nachname, geburtstag }));
+
+    alert("Registrierung erfolgreich!");
+  } catch (error) {
+    alert("Fehler bei der Registrierung: " + error.message);
+  }
+};
+
+// Login
+document.getElementById("loginBtn").onclick = async () => {
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    alert("Fehler beim Login: " + error.message);
+  }
+};
+
+// Google Login
+document.getElementById("googleLoginBtn").onclick = async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (error) {
+    alert("Fehler beim Google Login: " + error.message);
+  }
+};
+
+// Logout
+document.getElementById("logoutBtn").onclick = () => {
+  signOut(auth);
+};
+
+// Nutzerstatus beobachten
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    authSection.style.display = "none";
+    mainContent.style.display = "block";
+  } else {
+    authSection.style.display = "block";
+    mainContent.style.display = "none";
+  }
 });
-
-function zeigeFreunde() {
-  const liste = document.getElementById('freundeListe');
-  liste.innerHTML = '';
-  freunde.forEach(f => {
-    const li = document.createElement('li');
-    li.textContent = `${f.vorname} ${f.nachname} – Geburtstag: ${f.geburtstag} – Hobbys: ${f.hobbys.join(', ')}`;
-    liste.appendChild(li);
-  });
-}
-
-document.getElementById('bestFriendForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const jahr = document.getElementById('jahr').value;
-  const besterFreund = document.getElementById('besterFreund').value;
-  besteFreunde[jahr] = besterFreund;
-  zeigeBesteFreunde();
-  this.reset();
-});
-
-function zeigeBesteFreunde() {
-  const liste = document.getElementById('besteFreundeListe');
-  liste.innerHTML = '';
-  Object.keys(besteFreunde).sort().forEach(jahr => {
-    const li = document.createElement('li');
-    li.textContent = `${jahr}: ${besteFreunde[jahr]}`;
-    liste.appendChild(li);
-  });
-}

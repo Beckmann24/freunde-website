@@ -4,29 +4,74 @@
   <meta charset="UTF-8" />
   <title>Meine Freunde</title>
   <link rel="stylesheet" href="style.css" />
+  <script type="module" src="script.js" defer></script>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpkfY7jqQULUWfVu_2sVCVJ1TRatK3tnc",
+      authDomain: "freunde-website.firebaseapp.com",
+      projectId: "freunde-website",
+      storageBucket: "freunde-website.firebasestorage.app",
+      messagingSenderId: "843365542292",
+      appId: "1:843365542292:web:5377750aa88120c74b8781"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.auth = getAuth(app);
+  </script>
 </head>
 <body>
-  <h1>Freundesliste</h1>
-  <form id="friendForm">
-    <input type="text" placeholder="Vorname" id="vorname" required />
-    <input type="text" placeholder="Nachname" id="nachname" required />
-    <input type="date" id="geburtstag" required />
-    <input type="text" placeholder="Hobbys (kommagetrennt)" id="hobbys" required />
-    <button type="submit">Hinzufügen</button>
-  </form>
+  <h1>Freunde-Website</h1>
 
-  <h2>Meine Freunde</h2>
-  <ul id="freundeListe"></ul>
+  <!-- Auth-Bereich -->
+  <div id="authSection">
+    <div id="loginForm">
+      <h2>Anmelden</h2>
+      <input type="email" id="loginEmail" placeholder="E-Mail" />
+      <input type="password" id="loginPassword" placeholder="Passwort" />
+      <button id="loginBtn">Anmelden</button>
+      <button id="googleLoginBtn">Mit Google anmelden</button>
+      <p>Kein Konto? <a href="#" id="toggleToRegister">Jetzt registrieren</a></p>
+    </div>
 
-  <h2>Bester Freund pro Jahr</h2>
-  <form id="bestFriendForm">
-    <input type="number" placeholder="Jahr" id="jahr" required />
-    <input type="text" placeholder="Bester Freund (Vorname Nachname)" id="besterFreund" required />
-    <button type="submit">Speichern</button>
-  </form>
+    <div id="registerForm" style="display: none;">
+      <h2>Registrieren</h2>
+      <input type="text" id="regVorname" placeholder="Vorname" required />
+      <input type="text" id="regNachname" placeholder="Nachname" required />
+      <input type="date" id="regGeburtstag" required />
+      <input type="email" id="registerEmail" placeholder="E-Mail" required />
+      <input type="password" id="registerPassword" placeholder="Passwort" required />
+      <button id="registerBtn">Registrieren</button>
+      <p>Schon ein Konto? <a href="#" id="toggleToLogin">Anmelden</a></p>
+    </div>
+  </div>
 
-  <ul id="besteFreundeListe"></ul>
+  <div id="mainContent" style="display: none;">
+    <button id="logoutBtn">Abmelden</button>
 
-  <script src="script.js"></script>
+    <h2>Freund hinzufügen</h2>
+    <form id="friendForm">
+      <input type="text" placeholder="Vorname" id="vorname" required />
+      <input type="text" placeholder="Nachname" id="nachname" required />
+      <input type="date" id="geburtstag" required />
+      <input type="text" placeholder="Hobbys (kommagetrennt)" id="hobbys" required />
+      <button type="submit">Hinzufügen</button>
+    </form>
+
+    <h2>Meine Freunde</h2>
+    <ul id="freundeListe"></ul>
+
+    <h2>Bester Freund pro Jahr</h2>
+    <form id="bestFriendForm">
+      <input type="number" placeholder="Jahr" id="jahr" required />
+      <input type="text" placeholder="Bester Freund (Vorname Nachname)" id="besterFreund" required />
+      <button type="submit">Speichern</button>
+    </form>
+    <ul id="besteFreundeListe"></ul>
+  </div>
 </body>
 </html>

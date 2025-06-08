@@ -1,40 +1,48 @@
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initializeApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 
-const auth = window.auth;
+// Deine Firebase-Konfiguration
+const firebaseConfig = {
+  apiKey: "AIzaSyDpkfY7jqQULUWfVu_2sVCVJ1TRatK3tnc",
+  authDomain: "freunde-website.firebaseapp.com",
+  projectId: "freunde-website",
+  storageBucket: "freunde-website.appspot.com",
+  messagingSenderId: "843365542292",
+  appId: "1:843365542292:web:5377750aa88120c74b8781"
+};
+
+// Firebase initialisieren
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-const authSection = document.getElementById("authSection");
-const mainContent = document.getElementById("mainContent");
-
-document.getElementById("toggleToRegister").onclick = () => {
-  document.getElementById("loginForm").style.display = "none";
-  document.getElementById("registerForm").style.display = "block";
-};
-
-document.getElementById("toggleToLogin").onclick = () => {
-  document.getElementById("registerForm").style.display = "none";
-  document.getElementById("loginForm").style.display = "block";
-};
-
+// Registrierung mit E-Mail
 document.getElementById("registerBtn").onclick = async () => {
   const email = document.getElementById("registerEmail").value;
   const password = document.getElementById("registerPassword").value;
-  const vorname = document.getElementById("regVorname").value;
-  const nachname = document.getElementById("regNachname").value;
-  const geburtstag = document.getElementById("regGeburtstag").value;
+  const vorname = document.getElementById("vorname").value;
+  const nachname = document.getElementById("nachname").value;
+  const geburtstag = document.getElementById("geburtstag").value;
+
+  if (!vorname || !nachname || !geburtstag || !email || !password) {
+    alert("Bitte fülle alle Felder aus!");
+    return;
+  }
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    const user = result.user;
 
-    localStorage.setItem("userData", JSON.stringify({ vorname, nachname, geburtstag }));
+    await setDoc(doc(db, "users", user.uid), {
+      uid: user.uid,
+      email: user.email,
+      vorname,
+      nachname,
+      geburtstag,
+      createdAt: new Date().toISOString()
+    });
 
     alert("Registrierung erfolgreich!");
   } catch (error) {
@@ -42,52 +50,47 @@ document.getElementById("registerBtn").onclick = async () => {
   }
 };
 
+// Anmeldung mit E-Mail
 document.getElementById("loginBtn").onclick = async () => {
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPassword").value;
 
   try {
     await signInWithEmailAndPassword(auth, email, password);
+    alert("Erfolgreich angemeldet!");
   } catch (error) {
-    alert("Fehler beim Login: " + error.message);
+    alert("Fehler bei der Anmeldung: " + error.message);
   }
 };
 
+// Google-Login
 document.getElementById("googleLoginBtn").onclick = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
-    const isNewUser = result._tokenResponse?.isNewUser;
+    // Zusätzliche Daten abfragen (manuell)
+    const vorname = prompt("Bitte gib deinen Vornamen ein:");
+    const nachname = prompt("Bitte gib deinen Nachnamen ein:");
+    const geburtstag = prompt("Bitte gib dein Geburtsdatum ein (JJJJ-MM-TT):");
 
-    if (isNewUser) {
-      // Benutzer ist neu: Frage nach weiteren Infos
-      const vorname = prompt("Bitte gib deinen Vornamen ein:");
-      const nachname = prompt("Bitte gib deinen Nachnamen ein:");
-      const geburtstag = prompt("Bitte gib dein Geburtsdatum ein (JJJJ-MM-TT):");
-
-      if (vorname && nachname && geburtstag) {
-        localStorage.setItem("userData", JSON.stringify({ vorname, nachname, geburtstag }));
-      } else {
-        alert("Du musst alle Felder ausfüllen!");
-      }
+    if (!vorname || !nachname || !geburtstag) {
+      alert("Alle Felder müssen ausgefüllt werden!");
+      return;
     }
+
+    await setDoc(doc(db, "users", user.uid), {
+      uid: user.uid,
+      email: user.email,
+      vorname,
+      nachname,
+      geburtstag,
+      createdAt: new Date().toISOString()
+    });
+
+    alert("Google-Login erfolgreich!");
   } catch (error) {
+    console.error(error);
     alert("Fehler beim Google Login: " + error.message);
   }
 };
-
-
-document.getElementById("logoutBtn").onclick = () => {
-  signOut(auth);
-};
-
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    authSection.style.display = "none";
-    mainContent.style.display = "block";
-  } else {
-    authSection.style.display = "block";
-    mainContent.style.display = "none";
-  }
-});

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Meine Freunde</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Freundesliste</h1>
+  <form id="friendForm">
+    <input type="text" placeholder="Vorname" id="vorname" required />
+    <input type="text" placeholder="Nachname" id="nachname" required />
+    <input type="date" id="geburtstag" required />
+    <input type="text" placeholder="Hobbys (kommagetrennt)" id="hobbys" required />
+    <button type="submit">Hinzufügen</button>
+  </form>
+
+  <h2>Meine Freunde</h2>
+  <ul id="freundeListe"></ul>
+
+  <h2>Bester Freund pro Jahr</h2>
+  <form id="bestFriendForm">
+    <input type="number" placeholder="Jahr" id="jahr" required />
+    <input type="text" placeholder="Bester Freund (Vorname Nachname)" id="besterFreund" required />
+    <button type="submit">Speichern</button>
+  </form>
+
+  <ul id="besteFreundeListe"></ul>
+
+  <script src="script.js"></script>
+</body>
+</html>

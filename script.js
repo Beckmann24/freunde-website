@@ -1,5 +1,11 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
 
 // Firebase-Konfiguration
@@ -9,7 +15,7 @@ const firebaseConfig = {
   projectId: "freunde-website",
   storageBucket: "freunde-website.appspot.com",
   messagingSenderId: "843365542292",
-  appId: "1:843365542292:web:5377750aa88120c74b8781"
+  appId: "1:843365542292:web:5377750aa88120c74b8781",
 };
 
 // Firebase initialisieren
@@ -41,10 +47,11 @@ document.getElementById("registerBtn").onclick = async () => {
       vorname,
       nachname,
       geburtstag,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     });
 
     alert("Registrierung erfolgreich!");
+    window.location.href = "Dashboard.html";
   } catch (error) {
     alert("Fehler bei der Registrierung: " + error.message);
   }
@@ -58,6 +65,7 @@ document.getElementById("loginBtn").onclick = async () => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
     alert("Erfolgreich angemeldet!");
+    window.location.href = "Dashboard.html";
   } catch (error) {
     alert("Fehler bei der Anmeldung: " + error.message);
   }
@@ -84,10 +92,11 @@ document.getElementById("googleRegisterBtn").onclick = async () => {
       vorname,
       nachname,
       geburtstag,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     });
 
     alert("Google-Registrierung erfolgreich!");
+    window.location.href = "Dashboard.html";
   } catch (error) {
     console.error(error);
     alert("Fehler bei der Google-Registrierung: " + error.message);
@@ -99,6 +108,7 @@ document.getElementById("googleLoginBtn").onclick = async () => {
   try {
     await signInWithPopup(auth, provider);
     alert("Google-Login erfolgreich!");
+    window.location.href = "Dashboard.html";
   } catch (error) {
     console.error(error);
     alert("Fehler beim Google Login: " + error.message);

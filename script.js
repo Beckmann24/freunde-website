@@ -55,11 +55,28 @@ document.getElementById("loginBtn").onclick = async () => {
 
 document.getElementById("googleLoginBtn").onclick = async () => {
   try {
-    await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    const isNewUser = result._tokenResponse?.isNewUser;
+
+    if (isNewUser) {
+      // Benutzer ist neu: Frage nach weiteren Infos
+      const vorname = prompt("Bitte gib deinen Vornamen ein:");
+      const nachname = prompt("Bitte gib deinen Nachnamen ein:");
+      const geburtstag = prompt("Bitte gib dein Geburtsdatum ein (JJJJ-MM-TT):");
+
+      if (vorname && nachname && geburtstag) {
+        localStorage.setItem("userData", JSON.stringify({ vorname, nachname, geburtstag }));
+      } else {
+        alert("Du musst alle Felder ausfüllen!");
+      }
+    }
   } catch (error) {
     alert("Fehler beim Google Login: " + error.message);
   }
 };
+
 
 document.getElementById("logoutBtn").onclick = () => {
   signOut(auth);
